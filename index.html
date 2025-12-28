@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>专属资源导航</title>
+    <style>
+        :root {
+            /* 核心配色：深邃蓝紫 */
+            --bg-gradient: linear-gradient(135deg, #090919 0%, #161838 50%, #251e3e 100%);
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-sub: rgba(255, 255, 255, 0.6);
+            --hover-glow: rgba(79, 172, 254, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            color: var(--text-main);
+        }
+
+        /* 动态背景光效 */
+        .bg-light {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+        .light-1 { width: 300px; height: 300px; background: #4facfe; top: -50px; left: -50px; animation: float 8s infinite alternate; }
+        .light-2 { width: 250px; height: 250px; background: #f093fb; bottom: -50px; right: -50px; animation: float 10s infinite alternate-reverse; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 30px); }
+        }
+
+        /* 主容器 */
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(20, 20, 35, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 头部 */
+        .header {
+            margin-bottom: 35px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+            transform: rotate(-5deg);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        /* 链接列表 */
+        .link-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+        }
+
+        /* 卡片悬停效果 */
+        .card:hover {
+            transform: translateY(-3px) scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            color: var(--text-main);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .card-desc {
+            color: var(--text-sub);
+            font-size: 11px;
+            font-family: monospace; /* 网址用等宽字体看起来更专业 */
+        }
+
+        .arrow {
+            color: var(--text-sub);
+            opacity: 0.5;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .arrow {
+            opacity: 1;
+            transform: translateX(3px);
+            color: #fff;
+        }
+
+        /* 底部版权 */
+        .footer {
+            margin-top: 35px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        /* 个性化微调 */
+        .tag {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4757;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-bottom-left-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景装饰 -->
+    <div class="bg-light light-1"></div>
+    <div class="bg-light light-2"></div>
+
+    <div class="container">
+        <!-- 头部区域 -->
+        <div class="header">
+            <div class="avatar">💎</div>
+            <h1>聚合资源导航</h1>
+            <p>精选线路 · 实时更新 · 极速直达</p>
+        </div>
+
+        <!-- 链接区域 -->
+        <div class="link-list">
+            
+            <!-- 链接 1 -->
+            <a href="http://shtgxc.cn" target="_blank" class="card">
+                <div class="tag">HOT</div>
+                <div class="card-icon">🏰</div>
+                <div class="card-content">
+                    <span class="card-title">新资料天宫</span>
+                    <span class="card-desc">http://shtgxc.cn</span>
+                </div>
+                <div class="arrow">➜</div>
+            </a>
+
+            <!-- 链接 2 -->
+            <a href="https://pig.zwidi.cn" target="_blank" class="card">
+                <div class="card-icon">🐷</div>
+                <div class="card-content">
+                    <span class="card-title">集美资料卡</span>
+                    <span class="card-desc">pig.zwidi.cn</span>
+                </div>
+                <div class="arrow">➜</div>
+            </a>
+
+            <!-- 链接 3 -->
+            <a href="https://58.plvub.cn" target="_blank" class="card">
+                <div class="card-icon">🚀</div>
+                <div class="card-content">
+                    <span class="card-title">新 58 资料卡</span>
+                    <span class="card-desc">58.plvub.cn</span>
+                </div>
+                <div class="arrow">➜</div>
+            </a>
+
+        </div>
+
+        <div class="footer">
+            <p>© 2024 安全导航 | 禁止发布违法违规信息</p>
+            <p style="margin-top: 5px; font-size: 10px; opacity: 0.5;">网络防骗提醒：请勿轻信汇款要求</p>
+        </div>
+    </div>
+
+</body>
+</html>
