@@ -177,7 +177,7 @@
             // ==========================================
             // 🔴 关键配置：请在这里填入您的 BIN ID
             // 这样这个网页就只能加载您的数据了
-            const BIN_ID = "69511adb03998b11ea8db005"; 
+            const BIN_ID = "YOUR_BIN_ID_HERE"; 
             // ==========================================
 
             const links = ref([]);
@@ -209,7 +209,7 @@
             // 1. 获取数据 (公开读取，不需要Key)
             const fetchData = async () => {
                 if(BIN_ID === "YOUR_BIN_ID_HERE") {
-                    alert("请在代码第230行填写您的 Bin ID");
+                    alert("⚠️ 严重错误：您忘记修改代码中的 BIN_ID 了！\n\n请打开代码文件，找到第 230 行左右，把 'YOUR_BIN_ID_HERE' 替换成您在 JSONBin 网站上获取的 Bin ID。");
                     return;
                 }
                 try {
@@ -259,6 +259,11 @@
 
             // 4. 保存数据 (需要Key)
             const syncCloud = async () => {
+                if(BIN_ID === "YOUR_BIN_ID_HERE") {
+                    alert("保存失败：您还没修改代码中的 BIN_ID！请修改后再试。");
+                    return;
+                }
+
                 saving.value = true;
                 try {
                     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -269,15 +274,25 @@
                         },
                         body: JSON.stringify(links.value)
                     });
+
                     if(!res.ok) {
+                        const errData = await res.json().catch(()=>({}));
+                        console.error("Save Error:", res.status, errData);
+
                         if(res.status === 401 || res.status === 403) {
-                            alert("Key 错误，无法保存！请退出后台重试。");
-                            isAdmin.value = false; // 踢出
-                            localStorage.removeItem('nav_master_key');
+                            alert(`❌ 保存失败 (错误码 ${res.status})\n\n原因：Key 不正确或权限不足。\n请检查您输入的 Master Key 是否正确，或者该 Bin ID 是否属于这个 Key。`);
+                            // 暂时不自动登出，让用户有机会去检查 Key
+                        } else if(res.status === 404) {
+                            alert(`❌ 保存失败 (错误码 404)\n\n原因：Bin ID 不存在。\n请检查代码中的 BIN_ID 是否填错了。`);
                         } else {
-                            alert("保存失败");
+                            alert(`❌ 保存失败 (错误码 ${res.status})\n\n原因：${errData.message || '未知错误'}`);
                         }
+                    } else {
+                        // 保存成功，刷新一下显示
+                        alert("✅ 保存成功！");
                     }
+                } catch (e) {
+                    alert("网络错误：" + e.message);
                 } finally {
                     saving.value = false;
                 }
@@ -350,4 +365,3 @@
 </script>
 </body>
 </html>
-
