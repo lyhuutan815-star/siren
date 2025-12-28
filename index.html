@@ -3,254 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>专属资源导航</title>
+    <title>云端资源导航</title>
+    <!-- 引入 Vue 3 (让交互逻辑更简单) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
-            /* 核心配色：深邃蓝紫 */
-            --bg-gradient: linear-gradient(135deg, #090919 0%, #161838 50%, #251e3e 100%);
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --card-border: rgba(255, 255, 255, 0.1);
+            --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.15);
             --text-main: #ffffff;
-            --text-sub: rgba(255, 255, 255, 0.6);
-            --hover-glow: rgba(79, 172, 254, 0.5);
+            --text-sub: rgba(255, 255, 255, 0.7);
+            --accent: #ff4757;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        
         body {
             background: var(--bg-gradient);
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text-main);
             display: flex;
             justify-content: center;
-            align-items: center;
             padding: 20px;
-            overflow-x: hidden;
-            color: var(--text-main);
         }
 
-        /* 动态背景光效 */
-        .bg-light {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-        }
-        .light-1 { width: 300px; height: 300px; background: #4facfe; top: -50px; left: -50px; animation: float 8s infinite alternate; }
-        .light-2 { width: 250px; height: 250px; background: #f093fb; bottom: -50px; right: -50px; animation: float 10s infinite alternate-reverse; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(30px, 30px); }
-        }
-
-        /* 主容器 */
         .container {
             width: 100%;
             max-width: 420px;
-            background: rgba(20, 20, 35, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 40px 25px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
         /* 头部 */
-        .header {
-            margin-bottom: 35px;
-            text-align: center;
-        }
-
+        .header { margin: 40px 0; text-align: center; }
         .avatar {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 15px;
-            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
-            transform: rotate(-5deg);
+            width: 80px; height: 80px;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 35px; margin: 0 auto 15px;
+            box-shadow: 0 10px 25px rgba(255, 75, 43, 0.4);
         }
 
-        .header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
-        /* 链接列表 */
-        .link-list {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+        /* 列表 */
+        .link-list { width: 100%; display: flex; flex-direction: column; gap: 15px; }
 
         .card {
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: 18px 20px;
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 16px;
+            padding: 15px 20px;
+            display: flex; align-items: center;
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            overflow: hidden;
-        }
-
-        /* 卡片悬停效果 */
-        .card:hover {
-            transform: translateY(-3px) scale(1.02);
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        .card-icon {
-            font-size: 24px;
-            margin-right: 15px;
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-title {
-            color: var(--text-main);
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .card-desc {
-            color: var(--text-sub);
-            font-size: 11px;
-            font-family: monospace; /* 网址用等宽字体看起来更专业 */
-        }
-
-        .arrow {
-            color: var(--text-sub);
-            opacity: 0.5;
-            transition: transform 0.3s;
-        }
-
-        .card:hover .arrow {
-            opacity: 1;
-            transform: translateX(3px);
-            color: #fff;
-        }
-
-        /* 底部版权 */
-        .footer {
-            margin-top: 35px;
-            font-size: 12px;
-            color: rgba(255,255,255,0.2);
-            text-align: center;
-        }
-
-        /* 个性化微调 */
-        .tag {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #ff4757;
-            font-size: 9px;
-            padding: 2px 6px;
-            border-bottom-left-radius: 8px;
             color: white;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.15); }
+
+        .card-icon { font-size: 24px; margin-right: 15px; }
+        .card-info { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .card-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+        .card-url { font-size: 12px; color: var(--text-sub); opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .arrow { opacity: 0.5; }
+
+        /* 标签 */
+        .tag {
+            position: absolute; top: 0; right: 0;
+            background: var(--accent);
+            font-size: 10px; padding: 2px 8px;
+            border-bottom-left-radius: 10px;
+            border-top-right-radius: 16px;
             font-weight: bold;
         }
+
+        /* 底部 */
+        .footer { margin-top: 50px; text-align: center; opacity: 0.5; font-size: 12px; cursor: pointer; }
+
+        /* 模态框 */
+        .modal-mask {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; backdrop-filter: blur(5px);
+        }
+        .modal {
+            background: #2d3436; width: 90%; max-width: 350px;
+            padding: 25px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; margin-bottom: 5px; opacity: 0.8; }
+        .input-control {
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3); color: white;
+            outline: none;
+        }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            flex: 1; padding: 10px; border-radius: 8px; border: none;
+            cursor: pointer; font-weight: bold;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+        .btn-danger { background: #d63031; color: white; }
+
+        /* 管理面板 */
+        .admin-panel {
+            margin-top: 20px; padding: 15px;
+            background: rgba(0,0,0,0.3); border-radius: 12px;
+            width: 100%;
+        }
+        .loading-spinner { text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- 背景装饰 -->
-    <div class="bg-light light-1"></div>
-    <div class="bg-light light-2"></div>
+<div id="app" class="container">
+    
+    <!-- 头部 -->
+    <div class="header">
+        <div class="avatar">🔥</div>
+        <h2>聚合资源导航</h2>
+        <p style="font-size: 13px; opacity: 0.7; margin-top: 5px;">云端同步 · 永久更新</p>
+    </div>
 
-    <div class="container">
-        <!-- 头部区域 -->
-        <div class="header">
-            <div class="avatar">💎</div>
-            <h1>聚合资源导航</h1>
-            <p>精选线路 · 实时更新 · 极速直达</p>
-        </div>
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-spinner">
+        🚀 正在从云端获取数据...
+    </div>
 
-        <!-- 链接区域 -->
-        <div class="link-list">
-            
-            <!-- 链接 1 -->
-            <a href="http://shtgxc.cn" target="_blank" class="card">
-                <div class="tag">HOT</div>
-                <div class="card-icon">🏰</div>
-                <div class="card-content">
-                    <span class="card-title">新资料天宫</span>
-                    <span class="card-desc">http://shtgxc.cn</span>
-                </div>
-                <div class="arrow">➜</div>
-            </a>
-
-            <!-- 链接 2 -->
-            <a href="https://pig.zwidi.cn" target="_blank" class="card">
-                <div class="card-icon">🐷</div>
-                <div class="card-content">
-                    <span class="card-title">集美资料卡</span>
-                    <span class="card-desc">pig.zwidi.cn</span>
-                </div>
-                <div class="arrow">➜</div>
-            </a>
-
-            <!-- 链接 3 -->
-            <a href="https://58.plvub.cn" target="_blank" class="card">
-                <div class="card-icon">🚀</div>
-                <div class="card-content">
-                    <span class="card-title">新 58 资料卡</span>
-                    <span class="card-desc">58.plvub.cn</span>
-                </div>
-                <div class="arrow">➜</div>
-            </a>
-
-        </div>
-
-        <div class="footer">
-            <p>© 2024 安全导航 | 禁止发布违法违规信息</p>
-            <p style="margin-top: 5px; font-size: 10px; opacity: 0.5;">网络防骗提醒：请勿轻信汇款要求</p>
+    <!-- 错误提示 -->
+    <div v-if="errorMsg" style="color: #ff7675; text-align: center; margin-bottom: 20px; background: rgba(255,0,0,0.1); padding: 10px; border-radius: 8px;">
+        {{ errorMsg }}
+        <div v-if="!binId || !apiKey" style="margin-top: 5px; font-size: 12px;">
+            请点击底部“管理后台”配置数据库信息
         </div>
     </div>
+
+    <!-- 链接列表 -->
+    <div class="link-list">
+        <div v-for="(link, index) in sortedLinks" :key="index" class="card-wrapper">
+            <!-- 正常模式：跳转 -->
+            <a v-if="!isAdminMode" :href="link.url" target="_blank" class="card">
+                <div v-if="link.tag" class="tag">{{ link.tag }}</div>
+                <div class="card-icon">{{ link.icon || '🔗' }}</div>
+                <div class="card-info">
+                    <div class="card-title">{{ link.title }}</div>
+                    <div class="card-url">{{ link.url }}</div>
+                </div>
+                <div class="arrow">➜</div>
+            </a>
+
+            <!-- 管理模式：编辑 -->
+            <div v-else class="card" @click="openEditModal(link, index)" style="cursor: pointer; border-color: var(--accent);">
+                <div class="tag" style="background: #0984e3;">EDIT</div>
+                <div class="card-icon">{{ link.icon || '🔗' }}</div>
+                <div class="card-info">
+                    <div class="card-title">{{ link.title }}</div>
+                    <div class="card-url">{{ link.url }}</div>
+                </div>
+                <div class="arrow">✎</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 空数据状态 -->
+    <div v-if="!loading && links.length === 0 && !errorMsg" style="text-align: center; opacity: 0.5; margin-top: 30px;">
+        暂无数据，请进入后台添加
+    </div>
+
+    <!-- 底部触发器 -->
+    <div class="footer" @click="toggleAdminPanel">
+        <span v-if="!isAdminMode">⚙️ 管理后台</span>
+        <span v-else>🔙 退出管理</span>
+    </div>
+
+    <!-- 管理员面板 (登录后显示) -->
+    <div v-if="isAdminMode" class="admin-panel">
+        <div style="margin-bottom: 10px; font-size: 12px; opacity: 0.7;">当前连接: JSONBin 云端</div>
+        <button class="btn btn-primary" style="width: 100%;" @click="openAddModal">+ 添加新链接</button>
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" @click="showConfigModal = true">🔧 配置数据库 Keys</button>
+    </div>
+
+    <!-- 弹窗：编辑/添加 -->
+    <div v-if="showModal" class="modal-mask">
+        <div class="modal">
+            <h3 style="margin-bottom: 20px;">{{ isEditing ? '编辑链接' : '添加链接' }}</h3>
+            
+            <div class="input-group">
+                <label>标题</label>
+                <input v-model="form.title" class="input-control" placeholder="网站名称">
+            </div>
+            <div class="input-group">
+                <label>网址</label>
+                <input v-model="form.url" class="input-control" placeholder="https://...">
+            </div>
+            <div class="input-group" style="display: flex; gap: 10px;">
+                <div style="flex:1">
+                    <label>图标 (Emoji)</label>
+                    <input v-model="form.icon" class="input-control" placeholder="🚀">
+                </div>
+                <div style="flex:1">
+                    <label>标签 (可选)</label>
+                    <input v-model="form.tag" class="input-control" placeholder="HOT">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>排序 (数字越小越靠前)</label>
+                <input type="number" v-model.number="form.order" class="input-control" placeholder="0">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-secondary" @click="closeModal">取消</button>
+                <button v-if="isEditing" class="btn btn-danger" @click="deleteLink">删除</button>
+                <button class="btn btn-primary" @click="saveLink">{{ isSaving ? '保存中...' : '保存' }}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：配置 Key -->
+    <div v-if="showConfigModal" class="modal-mask">
+        <div class="modal">
+            <h3>☁️ 数据库连接配置</h3>
+            <p style="font-size: 12px; opacity: 0.6; margin-bottom: 15px;">数据存储在 jsonbin.io，请填入您的 Key</p>
+            
+            <div class="input-group">
+                <label>Bin ID (数据箱ID)</label>
+                <input v-model="binIdInput" class="input-control" placeholder="例如: 65c34...">
+            </div>
+            <div class="input-group">
+                <label>X-Master-Key (读写权限密钥)</label>
+                <input v-model="apiKeyInput" type="password" class="input-control" placeholder="$2a$10$...">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-secondary" @click="showConfigModal = false">关闭</button>
+                <button class="btn btn-primary" @click="saveConfig">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            // 状态
+            const links = ref([]);
+            const loading = ref(false);
+            const isSaving = ref(false);
+            const errorMsg = ref('');
+            const isAdminMode = ref(false);
+            
+            // 弹窗控制
+            const showModal = ref(false);
+            const showConfigModal = ref(false);
+            const isEditing = ref(false);
+            const editIndex = ref(-1);
+
+            // 配置信息 (保存在 localStorage 方便下次不用填)
+            const binId = ref(localStorage.getItem('nav_bin_id') || '');
+            const apiKey = ref(localStorage.getItem('nav_api_key') || '');
+            
+            // 临时输入框
+            const binIdInput = ref(binId.value);
+            const apiKeyInput = ref(apiKey.value);
+
+            // 表单数据
+            const form = ref({ title: '', url: '', icon: '', tag: '', order: 0 });
+
+            // 计算属性：排序
+            const sortedLinks = computed(() => {
+                return [...links.value].sort((a, b) => (a.order || 0) - (b.order || 0));
+            });
+
+            // 核心：从 JsonBin 获取数据
+            const fetchData = async () => {
+                if (!binId.value) {
+                    errorMsg.value = "未配置数据库 ID";
+                    return;
+                }
+                loading.value = true;
+                errorMsg.value = '';
+                
+                try {
+                    // JSONBin V3 API
+                    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId.value}/latest`, {
+                        headers: {
+                            'X-Master-Key': apiKey.value || '$2b$10$none', // 如果是公开 Bin 可能不需要 Key，但为了通用
+                            'X-Bin-Meta': 'false' // 只返回数据，不要元数据
+                        }
+                    });
+
+                    if (!res.ok) throw new Error("连接数据库失败，请检查配置");
+                    
+                    const data = await res.json();
+                    // 兼容处理：如果 bin 里是空的或者是对象，确保 links 是数组
+                    if (Array.isArray(data)) {
+                        links.value = data;
+                    } else if (data.record && Array.isArray(data.record)) {
+                        links.value = data.record;
+                    } else {
+                        links.value = [];
+                        // 自动写入初始数据
+                        if(isAdminMode.value) seedData();
+                    }
+                } catch (e) {
+                    console.error(e);
+                    errorMsg.value = e.message;
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            // 核心：保存数据到 JsonBin
+            const syncCloud = async () => {
+                if (!binId.value || !apiKey.value) {
+                    alert("请先配置 Master Key 才能写入数据！");
+                    return false;
+                }
+                isSaving.value = true;
+                try {
+                    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId.value}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': apiKey.value
+                        },
+                        body: JSON.stringify(links.value)
+                    });
+                    if (!res.ok) throw new Error("写入失败，权限不足或 ID 错误");
+                    return true;
+                } catch (e) {
+                    alert(e.message);
+                    return false;
+                } finally {
+                    isSaving.value = false;
+                }
+            };
+
+            // 初始化种子数据
+            const seedData = async () => {
+                links.value = [
+                    { title: "新资料天宫", url: "http://shtgxc.cn", icon: "🏰", tag: "HOT", order: 1 },
+                    { title: "新 58 资料卡", url: "https://58.plvub.cn", icon: "🚀", tag: "NEW", order: 2 }
+                ];
+                await syncCloud();
+            };
+
+            // 操作逻辑
+            const openAddModal = () => {
+                isEditing.value = false;
+                form.value = { title: '', url: 'http://', icon: '🔗', tag: '', order: Date.now() };
+                showModal.value = true;
+            };
+
+            const openEditModal = (link, index) => {
+                isEditing.value = true;
+                editIndex.value = index; // 这里的 index 是排序后的，需要注意
+                // 深度拷贝，防止直接修改显示
+                form.value = { ...link }; 
+                showModal.value = true;
+            };
+
+            const closeModal = () => {
+                showModal.value = false;
+            };
+
+            const saveLink = async () => {
+                // 本地更新
+                const newLink = { ...form.value };
+                
+                if (isEditing.value) {
+                    // 找到原对象在原始数组中的位置进行替换 (因为 sortedLinks 和 links 顺序可能不同)
+                    // 简单起见，这里先简化逻辑：
+                    // 在实际开发中应该给每个 link 一个唯一 ID，这里我们用暴力替换演示
+                    // 我们直接操作 links.value，这里需要一点技巧找到正确的 index
+                    // 为了简化，我们假设用户不频繁修改，直接先在 UI 上更新，然后全量推送到云端
+                    
+                    // 这里由于排序问题，简单的 index 可能对不上。
+                    // 实际做法：给数据加 ID。
+                    // 简易做法：先删除旧的（根据内容），再添加新的。
+                    // 或者更简单：重新拉取 -> 修改 -> 推送。
+                    
+                    // 修正：我们直接把当前 links 替换
+                    // 找到当前正在编辑的对象引用
+                    const target = sortedLinks.value[editIndex.value];
+                    const realIndex = links.value.indexOf(target);
+                    if(realIndex !== -1) links.value[realIndex] = newLink;
+                } else {
+                    links.value.push(newLink);
+                }
+
+                // 云端同步
+                const success = await syncCloud();
+                if (success) {
+                    closeModal();
+                }
+            };
+
+            const deleteLink = async () => {
+                if(!confirm("确定删除吗？")) return;
+                
+                const target = sortedLinks.value[editIndex.value];
+                const realIndex = links.value.indexOf(target);
+                if(realIndex !== -1) links.value.splice(realIndex, 1);
+                
+                const success = await syncCloud();
+                if (success) closeModal();
+            };
+
+            // 配置逻辑
+            const saveConfig = () => {
+                binId.value = binIdInput.value;
+                apiKey.value = apiKeyInput.value;
+                localStorage.setItem('nav_bin_id', binId.value);
+                localStorage.setItem('nav_api_key', apiKey.value);
+                showConfigModal.value = false;
+                fetchData(); // 重新加载数据
+            };
+
+            const toggleAdminPanel = () => {
+                if (isAdminMode.value) {
+                    isAdminMode.value = false;
+                } else {
+                    // 这里可以加一个简单的密码验证，防止误触
+                    // const pwd = prompt("请输入管理密码(如果有)");
+                    isAdminMode.value = true;
+                    // 如果没配置过 key，自动弹出配置框
+                    if (!binId.value || !apiKey.value) {
+                        showConfigModal.value = true;
+                    }
+                }
+            };
+
+            onMounted(() => {
+                if (binId.value) {
+                    fetchData();
+                } else {
+                    // 第一次使用
+                    showConfigModal.value = true; 
+                    isAdminMode.value = true; // 自动进入管理模式引导
+                }
+            });
+
+            return {
+                links, loading, errorMsg, isAdminMode, sortedLinks,
+                showModal, showConfigModal, isEditing, form, isSaving,
+                binIdInput, apiKeyInput, binId, apiKey,
+                toggleAdminPanel, openAddModal, openEditModal, closeModal,
+                saveLink, deleteLink, saveConfig
+            };
+        }
+    }).mount('#app');
+</script>
 
 </body>
 </html>
